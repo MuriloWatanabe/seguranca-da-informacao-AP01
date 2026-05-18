@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Ocorrências Acadêmicas — versão inicial</title>
+  <!-- MELHORIA: título atualizado para refletir versão corrigida -->
+  <title>Sistema de Ocorrências Acadêmicas — versão corrigida</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -21,36 +22,40 @@
   </header>
 
   <main class="layout">
-        <section id="loginView" class="card login-card">
+
+    <section id="loginView" class="card login-card">
       <div>
         <p class="eyebrow">Acesso</p>
         <h2>Entrar no sistema</h2>
         <p class="muted-text">
-          Use um dos usuários de demonstração para acessar o painel.
+          Informe suas credenciais para acessar o painel.
         </p>
       </div>
 
       <form id="loginForm" class="form-grid">
         <label>
           E-mail
-          <input id="email" type="email" value="professor@faculdade.local" autocomplete="email" />
+          <!-- MELHORIA 1: removido value="..." para não pré-preencher credenciais -->
+          <input id="email" type="email" autocomplete="email" placeholder="seu@email.com" />
         </label>
 
         <label>
           Senha
-          <input id="password" type="password" value="123456" autocomplete="current-password" />
+          <!-- MELHORIA 1: removido value="..." para não pré-preencher credenciais -->
+          <input id="password" type="password" autocomplete="current-password" placeholder="Sua senha" />
         </label>
 
         <button class="btn primary" type="submit">Entrar</button>
       </form>
 
-      <div class="demo-users">
-        <h3>Usuários de demonstração</h3>
-        <ul>
-          <li><strong>aluno@faculdade.local</strong> / 123456</li>
-          <li><strong>professor@faculdade.local</strong> / 123456</li>
-          <li><strong>admin@faculdade.local</strong> / admin</li>
-        </ul>
+      <!-- MELHORIA 2: removido bloco demo-users que listava usuário/senha publicamente -->
+
+      <!-- MELHORIA 10: aviso de sistema protótipo na tela de login -->
+      <div class="notice security-notice">
+        <strong>⚠️ Aviso de segurança:</strong> Este é um protótipo didático para fins acadêmicos.
+        Não insira dados pessoais reais. O sistema não possui back-end real — todos os dados
+        são armazenados localmente no navegador (localStorage) e podem ser acessados por
+        qualquer pessoa com acesso ao dispositivo.
       </div>
     </section>
 
@@ -61,15 +66,20 @@
           <h2 id="currentUserName">—</h2>
           <p id="currentUserDetails" class="muted-text">—</p>
 
-          <div class="role-switch">
+          <div class="role-switch" id="roleSwitchContainer">
             <label>
               Perfil ativo
-              <select id="roleSelect">
+              <!-- MELHORIA 3: select de perfil é desabilitado por padrão;
+                   só ADMIN pode alterar (controlado pelo app.js) -->
+              <select id="roleSelect" disabled>
                 <option value="ALUNO">Aluno</option>
                 <option value="PROFESSOR">Professor</option>
                 <option value="ADMIN">Administrador</option>
               </select>
             </label>
+            <p id="roleChangeNote" class="muted-text" style="font-size:0.8em; margin-top:4px;">
+              Somente administradores podem alterar perfis.
+            </p>
           </div>
         </article>
 
@@ -77,17 +87,27 @@
           <p class="eyebrow">Ações rápidas</p>
           <h2>Ferramentas do painel</h2>
           <div class="actions">
-            <button id="exportBtn" class="btn secondary" type="button">Exportar todos os dados</button>
-            <button id="clearLogsBtn" class="btn secondary" type="button">Limpar logs</button>
+            <!-- MELHORIA 6: exportBtn oculto por padrão; visível apenas para ADMIN (via app.js) -->
+            <button id="exportBtn" class="btn secondary hidden" type="button">Exportar todos os dados</button>
+            <!-- MELHORIA 8: clearLogsBtn oculto por padrão; visível apenas para ADMIN (via app.js) -->
+            <button id="clearLogsBtn" class="btn secondary hidden" type="button">Limpar logs</button>
             <button id="resetBtn" class="btn danger" type="button">Restaurar dados iniciais</button>
           </div>
         </article>
       </section>
 
       <section class="grid two">
-        <article class="card">
+        <!-- MELHORIA 12: formulário de ocorrência oculto por padrão;
+             app.js mostra apenas para PROFESSOR e ADMIN -->
+        <article class="card" id="occurrenceFormCard">
           <p class="eyebrow">Nova ocorrência</p>
           <h2>Registrar ocorrência acadêmica</h2>
+
+          <!-- Mensagem exibida para ALUNO no lugar do formulário -->
+          <div id="occurrenceFormBlocked" class="notice hidden">
+            <strong>Acesso restrito:</strong> Somente professores e administradores
+            podem registrar ocorrências.
+          </div>
 
           <form id="occurrenceForm" class="form-grid">
             <label>
@@ -102,7 +122,8 @@
 
             <label>
               CPF
-              <input id="studentCpf" type="text" placeholder="Ex.: 000.000.000-00" />
+              <!-- MELHORIA 12 (complemento): placeholder indica formato esperado para validação -->
+              <input id="studentCpf" type="text" placeholder="Ex.: 000.000.000-00" maxlength="14" />
             </label>
 
             <label>
@@ -112,7 +133,7 @@
 
             <label>
               Telefone
-              <input id="studentPhone" type="text" placeholder="(00) 00000-0000" />
+              <input id="studentPhone" type="text" placeholder="(00) 00000-0000" maxlength="15" />
             </label>
 
             <label>
@@ -143,12 +164,14 @@
 
             <label class="span-2">
               Observação interna
-              <textarea id="internalNote" rows="3" placeholder="Informação visível no painel..."></textarea>
+              <!-- MELHORIA 6 (complemento): campo de observação interna ocultado para ALUNO via app.js -->
+              <textarea id="internalNote" rows="3" placeholder="Informação visível apenas para professores e administradores..."></textarea>
             </label>
 
+            <!-- MELHORIA 9: checkbox de consentimento validado antes de salvar (controle no app.js) -->
             <label class="check span-2">
               <input id="privacyAck" type="checkbox" />
-              Confirmo que posso registrar estes dados.
+              Confirmo que estou autorizado a registrar estes dados e que as informações são verdadeiras.
             </label>
 
             <button class="btn primary span-2" type="submit">Salvar ocorrência</button>
@@ -161,7 +184,7 @@
 
           <label>
             Termo de busca
-            <input id="search" type="search" placeholder="Nome, matrícula, CPF, e-mail ou texto..." />
+            <input id="search" type="search" placeholder="Nome, matrícula, tipo ou texto..." />
           </label>
 
           <div class="summary">
@@ -176,7 +199,7 @@
           </div>
 
           <div class="notice">
-            A busca percorre todos os campos cadastrados e todos os perfis acessam a mesma base.
+            A busca percorre os campos visíveis para o seu perfil de acesso.
           </div>
         </article>
       </section>
@@ -195,7 +218,9 @@
             <thead>
               <tr>
                 <th>Aluno</th>
+                <!-- MELHORIA 5: coluna Documento exibe CPF mascarado para não-ADMIN -->
                 <th>Documento</th>
+                <!-- MELHORIA 5: coluna Contato pode ser ocultada para ALUNO via app.js -->
                 <th>Contato</th>
                 <th>Tipo</th>
                 <th>Prioridade</th>
@@ -223,9 +248,12 @@
     </section>
   </main>
 
+  <!-- MELHORIA 10: aviso de protótipo no rodapé -->
   <footer class="footer">
     <p>
-      Protótipo estático para atividade prática. Publicável em GitHub Pages.
+      ⚠️ <strong>Protótipo didático — não use dados reais.</strong>
+      Sistema estático sem back-end. Dados armazenados apenas no localStorage do navegador.
+      Desenvolvido para a disciplina de Segurança da Informação — Católica SC.
     </p>
   </footer>
 
